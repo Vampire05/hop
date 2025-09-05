@@ -1,0 +1,44 @@
+[
+  {
+    "name": "All TODOs",
+    "url": "https://jsonplaceholder.typicode.com/todos",
+    "method": "GET",
+    "body": ""
+  },
+  {
+    "name": "POST TODO 2",
+    "url": "https://jsonplaceholder.typicode.com/todos",
+    "method": "POST",
+    "body": "{\"userId\": 1, \"id\": 2, \"title\": \"quis ut nam facilis et officia qui\", \"completed\": false }"
+  },
+  {
+    "name": "Testname",
+    "url": "http://www.google.de",
+    "method": "GET",
+    "body": ""
+  },
+  {
+    "name": "Get TODO 4",
+    "url": "https://jsonplaceholder.typicode.com/todos/4",
+    "method": "GET",
+    "body": ""
+  },
+  {
+    "name": "Get TODO 5",
+    "url": "https://jsonplaceholder.typicode.com/todos/5",
+    "method": "GET",
+    "body": ""
+  },
+  {
+    "name": "Get TODO 6",
+    "url": "https://jsonplaceholder.typicode.com/todos/6",
+    "method": "GET",
+    "body": ""
+  },
+  {
+    "name": "Get TODO 7",
+    "url": "https://jsonplaceholder.typicode.com/todos/12345",
+    "method": "GET",
+    "body": ""
+  }
+]
