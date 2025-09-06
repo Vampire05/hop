@@ -101,4 +101,4 @@ If you have a feature request or found a bug, feel free to open an [issue](https
 ---
 
 ## 📜 License
-MIT License © 2025 [Your Name]
+MIT License © 2025 [Artem Schmieder]
