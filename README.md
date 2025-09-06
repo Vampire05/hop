@@ -44,7 +44,7 @@ All requests are stored in a `requests.json` file and can be edited, cloned, del
 ### Steps
 ```bash
 # Clone repository
-git clone https://github.com/yourname/hop.git
+git clone https://github.com/Vampire05/hop.git
 cd hop
 
 # Fetch dependencies
