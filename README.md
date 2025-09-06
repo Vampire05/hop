@@ -55,5 +55,50 @@ go build -o hop
 
 # Run
 ./hop
+```
 
+---
 
+## 📝 Example `requests.json`
+
+```json
+[
+  {
+    "name": "GET Google",
+    "url": "http://www.google.de",
+    "method": "GET",
+    "headers": {
+      "Accept-Language": "en-US"
+    },
+    "body": ""
+  },
+  {
+    "name": "POST Example",
+    "url": "https://jsonplaceholder.typicode.com/posts",
+    "method": "POST",
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": "{\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}"
+  }
+]
+```
+
+---
+
+## ⚡ Roadmap / Ideas
+- [ ] Tab support (multiple workspaces)
+- [ ] Syntax highlighting for JSON bodies
+- [ ] Import/Export requests (Postman Collection, cURL)
+- [ ] Extended authentication (OAuth2, Bearer Tokens)
+
+---
+
+## 🤝 Contributing
+Pull requests are welcome!  
+If you have a feature request or found a bug, feel free to open an [issue](https://github.com/yourname/hop/issues).
+
+---
+
+## 📜 License
+MIT License © 2025 [Your Name]
