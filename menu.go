@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"golang.org/x/term"
 )
@@ -191,8 +192,17 @@ func writeContentRight(content Request, selected int, editMode bool, editFields 
 	locate(contentStartRow+5, startOnRight)
 	fmt.Print(yellow, "BODY: ", white, content.Body)
 
+	// HEADERS unterhalb vom Body
+	row := contentStartRow + 7
+	locate(row, startOnRight)
+	fmt.Print(yellow, "HEADERS:")
+	for k, v := range content.Headers {
+		row++
+		locate(row, startOnRight+2)
+		fmt.Printf("%s: %s", white+k, v)
+	}
+
 	if editMode {
-		// nur das aktuell ausgewählte Feld anzeigen
 		field := editFields[selected]
 		switch field {
 		case "NAME":
@@ -207,11 +217,17 @@ func writeContentRight(content Request, selected int, editMode bool, editFields 
 		case "BODY":
 			locate(contentStartRow+5, startOnRight+len("BODY")+2)
 			fmt.Printf(invert, len(content.Body)+1, content.Body)
+		case "HEADERS":
+			locate(row+1, startOnRight)
+			fmt.Print(invert, leftWidth, "[EDIT HEADERS WITH ENTER]")
 		}
 		locate(height, 0)
 		fmt.Print(yellow, field, white, ": [PRESS ENTER TO EDIT]", white)
+	} else {
+		locate(height, 0)
 	}
 }
+
 func writeContentHelp() {
 
 	locate(contentStartRow+1, startOnLeft)
@@ -233,12 +249,10 @@ func writeContentHelp() {
 }
 
 func editField(r *Request, field string) {
-	// clear botton line first
 	locate(height, 0)
 	for i := 1; i < width; i++ {
 		fmt.Print(white, " ")
 	}
-
 	locate(height, 0)
 	fmt.Print(yellow, field, ": ", white)
 
@@ -272,5 +286,17 @@ done:
 		r.Method = string(input)
 	case "BODY":
 		r.Body = string(input)
+	case "HEADERS":
+		// Format: Key=Value
+		parts := string(input)
+		var key, value string
+		if idx := strings.Index(parts, "="); idx != -1 {
+			key = parts[:idx]
+			value = parts[idx+1:]
+			if r.Headers == nil {
+				r.Headers = make(map[string]string)
+			}
+			r.Headers[key] = value
+		}
 	}
 }

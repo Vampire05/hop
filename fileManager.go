@@ -6,10 +6,11 @@ import (
 )
 
 type Request struct {
-	Name   string `json:"name"`
-	URL    string `json:"url"`
-	Method string `json:"method"`
-	Body   string `json:"body"`
+	Name    string            `json:"name"`
+	URL     string            `json:"url"`
+	Method  string            `json:"method"`
+	Headers map[string]string `json:"headers"`
+	Body    string            `json:"body"`
 }
 
 var requests []Request
@@ -42,21 +43,25 @@ func cloneRequest(index int) {
 		return // Index ungültig
 	}
 
-	// Original-Request kopieren
 	original := requests[index]
-	clone := Request{
-		Name:   original.Name,
-		URL:    original.URL,
-		Method: original.Method,
-		Body:   original.Body,
+
+	// Header kopieren
+	clonedHeaders := make(map[string]string)
+	for k, v := range original.Headers {
+		clonedHeaders[k] = v
 	}
 
-	// Slice erweitern und Clone direkt nach dem Original einfügen
+	clone := Request{
+		Name:    original.Name,
+		URL:     original.URL,
+		Method:  original.Method,
+		Body:    original.Body,
+		Headers: clonedHeaders,
+	}
+
 	if index == len(requests)-1 {
-		// Original war letztes Element → einfach anhängen
 		requests = append(requests, clone)
 	} else {
-		// Insert in der Mitte
 		requests = append(requests[:index+1], append([]Request{clone}, requests[index+1:]...)...)
 	}
 

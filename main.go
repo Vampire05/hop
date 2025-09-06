@@ -16,7 +16,7 @@ func runMenu() {
 	selected := 0
 	currentRequest := 0
 	editMode := false
-	editFields := []string{"NAME", "METHOD", "URL", "BODY"}
+	editFields := []string{"NAME", "METHOD", "URL", "BODY", "HEADERS"}
 
 	for {
 		clearScreen()
