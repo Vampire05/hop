@@ -15,8 +15,9 @@ var yellow = "\033[33m"
 var blue = "\033[34m"
 var reset = "\033[0m"
 var white = "\033[37m"
+var invert = "\033[47m\033[30m%-*s\033[0m"
 
-var pageDevider int = 4                       // Wo wird die Seite vertikal aufgeteilt
+var pageDevider int = 5                       // Wo wird die Seite vertikal aufgeteilt
 var contentStartRow int = 8                   // Wo startet die erste Zeile nach der Überschrift
 var width int = 80                            // screen width
 var height int = 25                           // screen height
@@ -24,6 +25,8 @@ var leftWidth int = (width / pageDevider) - 1 // Platz links
 var menuHeight int = height - 10
 var menuWidth int = width - 2
 var oldState *term.State = nil
+var startOnRight int = leftWidth + 4
+var startOnLeft int = 3
 
 func switchTerminalRaw() {
 	// Terminal in Raw Mode schalten
@@ -36,13 +39,13 @@ func restoreTerminalMode() {
 }
 
 func readScreenDimensions() {
-
 	w, h, err := term.GetSize(int(os.Stdout.Fd()))
 	width = w
 	height = h
 	leftWidth = (w / pageDevider) - 1 // Platz links
 	menuHeight = height - 10
 	menuWidth = width - 2
+	startOnRight = leftWidth + 4
 
 	if err != nil {
 		fmt.Println("Error reading screen dimensions:", err)
@@ -56,7 +59,17 @@ func printBanner() {
     ╠═╣║ ║╠═╝  ───  ╠═╣└┬┘├─┘├┤ ├┬┘ │ ├┤ ┌┴┬┘ │   ║ ║├─┘├┤ ├┬┘├─┤ │ ││ ││││  ╠═╝│  ├─┤└┬┘│ ┬├┬┘│ ││ ││││ ││
     ╩ ╩╚═╝╩         ╩ ╩ ┴ ┴  └─┘┴└─ ┴ └─┘┴ └─ ┴   ╚═╝┴  └─┘┴└─┴ ┴ ┴ ┴└─┘┘└┘  ╩  ┴─┘┴ ┴ ┴ └─┘┴└─└─┘└─┘┘└┘─┴┘
 `
-	fmt.Println(banner)
+	bannerSmall := `
+    ╦ ╦╔═╗╔═╗
+    ╠═╣║ ║╠═╝
+    ╩ ╩╚═╝╩  
+`
+	if width < 110 {
+		fmt.Println(bannerSmall)
+	} else {
+		fmt.Println(banner)
+	}
+
 }
 
 // Cursorposition setzen (1-basiert: row, col)
@@ -78,216 +91,156 @@ func clearScreen() {
 	}
 }
 
-// Zeichnet eine durchgehende Linie im Contentbereich
-func drawContentLine() {
-	fmt.Printf(green)
-
-	for i := 0; i < menuWidth-leftWidth-5; i++ {
-		fmt.Print("-")
-	}
-}
-
 // Fensterrahmen mit Überschrift, Linie darunter und 2-Spalten-Layout
-func drawMain() {
+func drawMain(withSeperator, withHints bool) {
 	readScreenDimensions()
+	clearScreen()
 
 	fmt.Println(green)
 
 	// obere Linie
-	fmt.Print("+")
+	fmt.Print("╔")
 	for i := 0; i < menuWidth; i++ {
-		fmt.Print("-")
+		fmt.Print("═")
 	}
-	fmt.Println("+")
+	fmt.Println("╗")
 
 	// Überschrift zentrieren
 	printBanner()
 
 	// Linie unter Überschrift
-	fmt.Print("+")
+	fmt.Print("╠")
 	for i := 0; i < menuWidth; i++ {
-		fmt.Print("-")
+		fmt.Print("═")
 	}
-	fmt.Println("+")
+	fmt.Println("╣")
 
 	// Restlicher Rahmen mit 2 Spalten
 	for j := 0; j < menuHeight; j++ {
-		fmt.Print("|")
+		fmt.Print("║")
 
 		// linke Spalte
 		for i := 0; i < leftWidth; i++ {
 			fmt.Print(" ")
 		}
 
-		// vertikale Trennung
-		fmt.Print("|")
+		if withSeperator {
+			// vertikale Trennung
+			fmt.Print("│")
+		} else {
+			fmt.Print(" ")
+		}
 
 		// rechte Spalte
 		for i := 0; i < (menuWidth - leftWidth - 1); i++ { // -2 Rahmen, -1 Trennlinie
 			fmt.Print(" ")
 		}
 
-		fmt.Println("|") // rechte Rahmenlinie
+		fmt.Println("║") // rechte Rahmenlinie
 	}
 
 	// untere Linie
-	fmt.Print("+")
+	fmt.Print("╚")
 	for i := 0; i < menuWidth; i++ {
-		fmt.Print("-")
+		fmt.Print("═")
 	}
-	fmt.Println("+")
+	fmt.Println("╝")
 
-	locate(height+1, 1)
-	fmt.Print(blue, "Mit ↑/↓ move, q = quit, e = edit, n = new request, c = clone request, Enter = send request")
+	if withHints {
+		locate(height+1, 1)
+		fmt.Print(blue, "Mit ↑/↓ move, F1 = help")
+	}
+
 }
 
 // writeListLeft zeigt links entweder Requests oder Editierfelder, abhängig davon, was übergeben wird
-func writeListLeft(selected int, requests []Request, editMode bool, editFields []string) {
+func writeListLeft(selected int, list []string) {
 	fmt.Println(white)
 
-	if editMode {
-		// linke Spalte: editierbare Felder
-		for i, field := range editFields {
-			locate(contentStartRow+i, 2)
-			if i == selected {
-				fmt.Printf("\033[47m\033[30m%-*s\033[0m", leftWidth-1, field)
-			} else {
-				fmt.Printf("%-*s", leftWidth-1, field)
-			}
-		}
-	} else {
-		// linke Spalte: Requests
-		for i, item := range requests {
-			locate(contentStartRow+i, 2)
-			text := item.Name
-			if len(text) > leftWidth-2 {
-				text = text[:leftWidth-2]
-			}
-			if i == selected {
-				fmt.Printf(" \033[47m\033[30m%-*s\033[0m", leftWidth-1, text)
-			} else {
-				fmt.Printf(" %-*s", leftWidth-1, text)
-			}
+	// linke Spalte: editierbare Felder
+	for i, field := range list {
+		locate(contentStartRow+i, startOnLeft)
+		if i == selected {
+			fmt.Printf(invert, leftWidth-1, field)
+		} else {
+			fmt.Printf("%-*s", leftWidth-1, field)
 		}
 	}
+
+}
+
+func writeAnyKeyHint() {
+	locate(height, 1)
+	fmt.Print(white, "--- Press any key to return ---")
+	os.Stdin.Read(make([]byte, 1))
 }
 
 // writeContentRight zeigt rechts entweder den gesamten Request oder nur ein Feld
-func writeContentRight(content Request, selected int, editMode bool, editFields []string, x int) {
+func writeContentRight(content Request, selected int, editMode bool, editFields []string) {
 	fmt.Println(white)
+
+	locate(contentStartRow, startOnRight)
+	fmt.Print(yellow, "NAME: ", white, content.Name)
+
+	locate(contentStartRow+2, startOnRight)
+	fmt.Print(yellow, "METHOD: ", white, content.Method)
+
+	locate(contentStartRow+3, startOnRight)
+	fmt.Print(yellow, "URL: ", white, content.URL)
+
+	locate(contentStartRow+5, startOnRight)
+	fmt.Print(yellow, "BODY: ", white, content.Body)
 
 	if editMode {
 		// nur das aktuell ausgewählte Feld anzeigen
 		field := editFields[selected]
-		locate(contentStartRow, x)
-		fmt.Print(yellow, "Aktueller Wert: ", white)
 		switch field {
-		case "Name":
-			fmt.Print(content.Name)
+		case "NAME":
+			locate(contentStartRow, startOnRight+len("NAME")+2)
+			fmt.Printf(invert, len(content.Name)+1, content.Name)
+		case "METHOD":
+			locate(contentStartRow+2, startOnRight+len("METHOD")+2)
+			fmt.Printf(invert, len(content.Method)+1, content.Method)
 		case "URL":
-			fmt.Print(content.URL)
-		case "Method":
-			fmt.Print(content.Method)
-		case "Body":
-			fmt.Print(content.Body)
+			locate(contentStartRow+3, startOnRight+len("URL")+2)
+			fmt.Printf(invert, len(content.URL)+1, content.URL)
+		case "BODY":
+			locate(contentStartRow+5, startOnRight+len("BODY")+2)
+			fmt.Printf(invert, len(content.Body)+1, content.Body)
 		}
-	} else {
-		// kompletter Request
-		locate(contentStartRow, x)
-		fmt.Print(yellow, "NAME: ", white, content.Name)
-
-		locate(contentStartRow+2, x)
-		fmt.Print(yellow, "METHOD: ", white, content.Method)
-
-		locate(contentStartRow+3, x)
-		fmt.Print(yellow, "URL: ", white, content.URL)
-
-		locate(contentStartRow+5, x)
-		fmt.Print(yellow, "BODY: ", white, content.Body)
+		locate(height, 0)
+		fmt.Print(yellow, field, white, ": [PRESS ENTER TO EDIT]", white)
 	}
 }
+func writeContentHelp() {
 
-// PopupMenu zeigt ein einfaches ASCII-Popup mit Optionen an und gibt die gewählte Option zurück
-func PopupMenu(title string, options []string) int {
-	readScreenDimensions()
+	locate(contentStartRow+1, startOnLeft)
+	fmt.Print(white, "hop is a simple commandline http client written in go.")
+	locate(contentStartRow+2, startOnLeft)
+	fmt.Print(white, "All http request are saved to a .json file.")
 
-	// Popup-Größe
-	pWidth := 50
-	pHeight := len(options) + 4
-	startRow := (height - pHeight) / 2
-	startCol := (width - pWidth) / 2
+	locate(contentStartRow+5, startOnRight)
+	fmt.Print(yellow, "e = ", white, "Enter edit mode for the selected request")
 
-	selected := 0
+	locate(contentStartRow+6, startOnRight)
+	fmt.Print(yellow, "Del = ", white, "Delete the selected request")
 
-	drawPopup := func() {
-		// Rahmen
-		locate(startRow, startCol)
-		fmt.Print("+")
-		for i := 0; i < pWidth-2; i++ {
-			fmt.Print("-")
-		}
-		fmt.Println("+")
+	locate(contentStartRow+7, startOnRight)
+	fmt.Print(yellow, "Enter = ", white, "Send the selected request")
 
-		// Titel
-		locate(startRow+1, startCol+2)
-		fmt.Print(title)
-
-		// Optionen
-		for i, opt := range options {
-			locate(startRow+2+i, startCol+2)
-			if i == selected {
-				fmt.Printf("\033[47m\033[30m%-*s\033[0m", pWidth-4, opt) // Highlight
-			} else {
-				fmt.Printf("%-*s", pWidth-4, opt)
-			}
-		}
-
-		// untere Linie
-		locate(startRow+pHeight-1, startCol)
-		fmt.Print("+")
-		for i := 0; i < pWidth-2; i++ {
-			fmt.Print("-")
-		}
-		fmt.Println("+")
-	}
-
-	switchTerminalRaw()
-	defer restoreTerminalMode()
-
-	for {
-		drawPopup()
-
-		var buf [3]byte
-		n, _ := os.Stdin.Read(buf[:])
-		if n == 1 {
-			switch buf[0] {
-			case 27: // Escape-Sequenzen für Pfeile
-				var arrow [2]byte
-				os.Stdin.Read(arrow[:])
-				if arrow[0] == 91 {
-					switch arrow[1] {
-					case 65: // Up
-						if selected > 0 {
-							selected--
-						}
-					case 66: // Down
-						if selected < len(options)-1 {
-							selected++
-						}
-					}
-				}
-			case 13: // Enter
-				return selected
-			case 'q':
-				return -1
-			}
-		}
-	}
+	locate(contentStartRow+8, startOnRight)
+	fmt.Print(yellow, "c = ", white, "Clone the selected request")
 }
 
-func editField(r *Request, field string, x, y int) {
-	locate(y, x)
-	fmt.Print("Neuer Wert: ")
+func editField(r *Request, field string) {
+	// clear botton line first
+	locate(height, 0)
+	for i := 1; i < width; i++ {
+		fmt.Print(white, " ")
+	}
+
+	locate(height, 0)
+	fmt.Print(yellow, field, ": ", white)
 
 	input := []rune{}
 	for {
@@ -311,13 +264,13 @@ func editField(r *Request, field string, x, y int) {
 	}
 done:
 	switch field {
-	case "Name":
+	case "NAME":
 		r.Name = string(input)
 	case "URL":
 		r.URL = string(input)
-	case "Method":
+	case "METHOD":
 		r.Method = string(input)
-	case "Body":
+	case "BODY":
 		r.Body = string(input)
 	}
 }

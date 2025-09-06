@@ -1,91 +1,88 @@
 package main
 
 import (
-	"fmt"
-	"os"
+	"wumpiwolf.de/hop/keyboardmanager"
 )
 
 func main() {
 	loadRequests()
-
-	// Menü starten mit geladenen Requests
-	runMenu(requests)
-
-	// Debug-Ausgabe: was geladen wurde
-	for _, v := range requests {
-		fmt.Println(v.Name)
-	}
+	runMenu()
 }
 
-// runMenu zeigt eine Liste links an und lässt mit ↑/↓ navigieren
-func runMenu(requests []Request) {
-
+func runMenu() {
 	switchTerminalRaw()
 	defer restoreTerminalMode()
 
-	selected := 0       // Auswahl in der Liste (Request oder Feld)
-	currentRequest := 0 // aktuell gewählter Request
-	editMode := false   // false = normal, true = editiermodus
-	editFields := []string{"Name", "URL", "Method", "Body"}
+	selected := 0
+	currentRequest := 0
+	editMode := false
+	editFields := []string{"NAME", "METHOD", "URL", "BODY"}
 
 	for {
 		clearScreen()
-		drawMain()
+		drawMain(true, true)
 
 		if editMode {
-			// Editiermodus: linke Spalte = Felder des ausgewählten Requests
-			writeListLeft(selected, nil, true, editFields)
-			writeContentRight(requests[currentRequest], selected, true, editFields, leftWidth+5)
+			//writeListLeft(selected, editFields)
+			writeContentRight(requests[currentRequest], selected, true, editFields)
 		} else {
-			// Normalmodus: linke Spalte = Requests
-			writeListLeft(selected, requests, false, nil)
-			writeContentRight(requests[selected], 0, false, nil, leftWidth+5)
+			var requestNames []string
+			for _, v := range requests {
+				requestNames = append(requestNames, v.Name)
+			}
+			writeListLeft(selected, requestNames)
+			writeContentRight(requests[selected], 0, false, nil)
 		}
 
-		var buf [1]byte
-		os.Stdin.Read(buf[:])
+		key := keyboardmanager.ReadKey() // ← alles über keyboardmanager
 
-		switch buf[0] {
-		case 'q':
+		switch key {
+		case keyboardmanager.KeyEscape:
 			if editMode {
 				editMode = false
 				selected = currentRequest
+				saveRequests()
 			} else {
 				clearScreen()
 				return
 			}
-		case 'e':
+		case "e":
 			if !editMode {
 				editMode = true
 				currentRequest = selected
-				selected = 0 // Start bei erstem Feld
+				selected = 0
 			}
-		case 13, 10: // Enter
+		case "c":
+			if !editMode {
+				cloneRequest(selected)
+			}
+		case keyboardmanager.KeyEnter:
 			if editMode {
-				editField(&requests[currentRequest], editFields[selected], leftWidth+5, contentStartRow+3)
+				editField(&requests[currentRequest], editFields[selected])
 			} else {
 				clearScreen()
 				fire_get(requests[selected].URL)
-				fmt.Print(blue, "\n--- Press any key to return ---")
-				os.Stdin.Read(make([]byte, 1))
+				writeAnyKeyHint()
 			}
-		case 27: // Pfeiltasten
-			var seq [2]byte
-			os.Stdin.Read(seq[:])
-			if seq[0] == 91 {
-				switch seq[1] {
-				case 65: // ↑
-					if selected > 0 {
-						selected--
-					}
-				case 66: // ↓
-					if editMode && selected < len(editFields)-1 {
-						selected++
-					} else if !editMode && selected < len(requests)-1 {
-						selected++
-					}
-				}
+		case keyboardmanager.KeyArrowUp:
+			if selected > 0 {
+				selected--
 			}
+		case keyboardmanager.KeyArrowDown:
+			if editMode && selected < len(editFields)-1 {
+				selected++
+			} else if !editMode && selected < len(requests)-1 {
+				selected++
+			}
+		case keyboardmanager.KeyDelete:
+			deleteRequest(selected)
+			if selected >= len(requests) && len(requests) > 0 {
+				selected = len(requests) - 1
+			}
+		case keyboardmanager.KeyF1:
+			drawMain(false, false)
+			writeContentHelp()
+			writeAnyKeyHint()
 		}
 	}
 }

@@ -1,43 +1,37 @@
 [
   {
-    "name": "All TODOs",
-    "url": "https://jsonplaceholder.typicode.com/todos",
+    "name": "Test123",
+    "url": "http://www.google.de",
+    "method": "GET",
+    "body": "xxx"
+  },
+  {
+    "name": "GET TODO 1",
+    "url": "https://jsonplaceholder.typicode.com/todo/1",
     "method": "GET",
     "body": ""
   },
   {
-    "name": "POST TODO 2",
-    "url": "https://jsonplaceholder.typicode.com/todos",
+    "name": "POST TODO",
+    "url": "\u001b\u001b\u001b\u001b",
     "method": "POST",
     "body": "{\"userId\": 1, \"id\": 2, \"title\": \"quis ut nam facilis et officia qui\", \"completed\": false }"
   },
   {
-    "name": "Testname",
-    "url": "http://www.google.de",
+    "name": "Get Wumpi\u001b\u001b\u001b",
+    "url": "http://www.wumpiwolf.de",
     "method": "GET",
     "body": ""
   },
   {
-    "name": "Get TODO 4",
-    "url": "https://jsonplaceholder.typicode.com/todos/4",
+    "name": "Test12345",
+    "url": "http://www.wumpiwolf.de",
     "method": "GET",
     "body": ""
   },
   {
-    "name": "Get TODO 5",
-    "url": "https://jsonplaceholder.typicode.com/todos/5",
-    "method": "GET",
-    "body": ""
-  },
-  {
-    "name": "Get TODO 6",
-    "url": "https://jsonplaceholder.typicode.com/todos/6",
-    "method": "GET",
-    "body": ""
-  },
-  {
-    "name": "Get TODO 7",
-    "url": "https://jsonplaceholder.typicode.com/todos/12345",
+    "name": "sdfsdfgdfgsdg",
+    "url": "http://www.wumpiwolf.de",
     "method": "GET",
     "body": ""
   }
