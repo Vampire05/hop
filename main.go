@@ -61,7 +61,7 @@ func runMenu() {
 				editField(&requests[currentRequest], editFields[selected])
 			} else {
 				clearScreen()
-				fire_get(requests[selected].URL)
+				processRequest(requests[selected])
 				writeAnyKeyHint()
 			}
 		case keyboardmanager.KeyArrowUp:

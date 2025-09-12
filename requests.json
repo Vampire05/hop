@@ -15,10 +15,10 @@
   },
   {
     "name": "POST TODO",
-    "url": "http://example.com",
+    "url": "http://wumpiwolf.de:5000/",
     "method": "POST",
     "headers": {},
-    "body": "some body text"
+    "body": "{\"name\": \"test\", \"age\": 42}"
   },
   {
     "name": "Get Wumpi",

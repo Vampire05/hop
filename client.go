@@ -5,7 +5,25 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 )
+
+func processRequest(r Request) {
+	method := strings.TrimSpace(strings.ToUpper(r.Method))
+	if method == "GET" {
+		fire_get(r.URL)
+	} else if method == "POST" {
+		fire_post(r.URL, r.Body)
+	} else if method == "PUT" {
+		fire_put(r.URL, r.Body)
+	} else if method == "DELETE" {
+		fire_delete(r.URL, r.Body)
+	} else if method == "PATCH" {
+		fmt.Println("Not implemented yet")
+	} else {
+		fmt.Println("UNKNOWN HTTP METHOD")
+	}
+}
 
 func fire_get(url string) {
 	resp, err := http.Get(url)
@@ -28,10 +46,10 @@ func fire_post(url string, data string) {
 	}
 
 	// Header wie Insomnia
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "*/*")
-	req.Header.Set("User-Agent", "insomnia/2023.4.0")
-	req.Header.Set("Cookie", "session_id_constructor=...; session_id_timetrack=...")
+	//req.Header.Set("Content-Type", "application/json")
+	//req.Header.Set("Accept", "*/*")
+	//req.Header.Set("User-Agent", "insomnia/2023.4.0")
+	//req.Header.Set("Cookie", "session_id_constructor=...; session_id_timetrack=...")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -46,11 +64,11 @@ func fire_post(url string, data string) {
 	fmt.Println(buf.String())
 }
 
-func fire_put(url string) {
+func fire_put(url string, data string) {
 
 }
 
-func fire_delete(url string) {
+func fire_delete(url string, data string) {
 
 }
 
