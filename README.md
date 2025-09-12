@@ -44,7 +44,7 @@ All requests are stored in a `requests.json` file and can be edited, cloned, del
 ### Steps
 ```bash
 # Clone repository
-git clone https://github.com/yourname/hop.git
+git clone https://github.com/Vampire05/hop.git
 cd hop
 
 # Fetch dependencies
@@ -101,4 +101,4 @@ If you have a feature request or found a bug, feel free to open an [issue](https
 ---
 
 ## 📜 License
-MIT License © 2025 [Your Name]
+MIT License © 2025 [Artem Schmieder]
