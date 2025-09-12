@@ -36,6 +36,7 @@ func switchTerminalRaw() {
 }
 
 func restoreTerminalMode() {
+	fmt.Print(white)
 	term.Restore(int(os.Stdin.Fd()), oldState)
 }
 
