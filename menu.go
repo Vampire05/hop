@@ -256,7 +256,25 @@ func editField(r *Request, field string) {
 	locate(height, 0)
 	fmt.Print(yellow, field, ": ", white)
 
-	input := []rune{}
+	// Aktuellen Wert ermitteln
+	var current string
+	switch field {
+	case "NAME":
+		current = r.Name
+	case "URL":
+		current = r.URL
+	case "METHOD":
+		current = r.Method
+	case "BODY":
+		current = r.Body
+	case "HEADERS":
+		// für HEADERS kein Single-Value → bleibt leer oder man könnte Key=Value ausgeben
+	}
+
+	// aktuellen Wert als Starttext anzeigen
+	fmt.Print(current)
+	input := []rune(current)
+
 	for {
 		buf := make([]byte, 3)
 		n, _ := os.Stdin.Read(buf)

@@ -1,45 +1,37 @@
 [
   {
-    "name": "Test123",
-    "url": "http://www.google.de",
-    "method": "GET",
-    "headers": {},
-    "body": "sdfsdf"
-  },
-  {
     "name": "GET TODO 1",
-    "url": "https://jsonplaceholder.typicode.com/todo/1",
+    "url": "http://jsonplaceholder.typicode.com/todos/1",
     "method": "GET",
     "headers": {},
     "body": ""
   },
   {
-    "name": "POST TODO",
+    "name": "POST Test",
     "url": "http://wumpiwolf.de:5000/",
     "method": "POST",
     "headers": {},
     "body": "{\"name\": \"test\", \"age\": 42}"
   },
   {
-    "name": "Get Wumpi",
-    "url": "http://www.wumpiwolf.de",
-    "method": "GET",
-    "headers": {
-      "Accept-Language": "en-US",
-      "Authorization": "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
-      "Content-Type": "text/html; charset=utf-8"
-    },
-    "body": ""
+    "name": "DELETE Test",
+    "url": "http://wumpiwolf.de:5000/",
+    "method": "DELETE",
+    "headers": {},
+    "body": "{\"name\": \"test\", \"age\": 42}"
   },
   {
-    "name": "Name2",
-    "url": "http://www.wumpiwolf.de",
-    "method": "patch",
-    "headers": {
-      "Accept-Language": "en-US",
-      "Authorization": "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
-      "Content-Type": "text/html; charset=utf-8"
-    },
-    "body": ""
+    "name": "PATCH Test",
+    "url": "http://wumpiwolf.de:5000/",
+    "method": "Patch",
+    "headers": {},
+    "body": "{\"name\": \"test\", \"age\": 42}"
+  },
+  {
+    "name": "PUT Test",
+    "url": "http://wumpiwolf.de:5000/",
+    "method": "PUT",
+    "headers": {},
+    "body": "{\"name\": \"test\", \"age\": 42}"
   }
 ]

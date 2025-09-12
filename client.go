@@ -12,45 +12,27 @@ func processRequest(r Request) {
 	method := strings.TrimSpace(strings.ToUpper(r.Method))
 	switch method {
 	case "GET":
-		fire_get(r.URL)
+		fire_request("GET", r.URL, r.Body)
 	case "POST":
-		fire_post(r.URL, r.Body)
+		fire_request("POST", r.URL, r.Body)
 	case "PUT":
-		fire_put(r.URL, r.Body)
+		fire_request("PUT", r.URL, r.Body)
 	case "DELETE":
-		fire_delete(r.URL, r.Body)
+		fire_request("DELETE", r.URL, r.Body)
 	case "PATCH":
-		fmt.Println("Not implemented yet")
+		fire_request("PATCH", r.URL, r.Body)
 	default:
 		fmt.Println("UNKNOWN HTTP METHOD")
 	}
 }
 
-func fire_get(url string) {
-	resp, err := http.Get(url)
-	if err != nil {
-		fmt.Println(red, "ERROR", err, reset)
-		return
-	}
-	defer resp.Body.Close()
-
-	showResponse(*resp)
-}
-
-func fire_post(url string, data string) {
-	fmt.Println(blue, data)
+func fire_request(method string, url string, data string) {
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", url, bytes.NewBufferString(data))
+	req, err := http.NewRequest(method, url, bytes.NewBufferString(data))
 	if err != nil {
 		fmt.Println("ERROR:", err)
 		return
 	}
-
-	// Header wie Insomnia
-	//req.Header.Set("Content-Type", "application/json")
-	//req.Header.Set("Accept", "*/*")
-	//req.Header.Set("User-Agent", "insomnia/2023.4.0")
-	//req.Header.Set("Cookie", "session_id_constructor=...; session_id_timetrack=...")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -59,18 +41,7 @@ func fire_post(url string, data string) {
 	}
 	defer resp.Body.Close()
 
-	// Body komplett ausgeben
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	fmt.Println(buf.String())
-}
-
-func fire_put(url string, data string) {
-
-}
-
-func fire_delete(url string, data string) {
-
+	showResponse(*resp)
 }
 
 func showResponse(resp http.Response) {
