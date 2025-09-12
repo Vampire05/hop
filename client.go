@@ -10,17 +10,18 @@ import (
 
 func processRequest(r Request) {
 	method := strings.TrimSpace(strings.ToUpper(r.Method))
-	if method == "GET" {
+	switch method {
+	case "GET":
 		fire_get(r.URL)
-	} else if method == "POST" {
+	case "POST":
 		fire_post(r.URL, r.Body)
-	} else if method == "PUT" {
+	case "PUT":
 		fire_put(r.URL, r.Body)
-	} else if method == "DELETE" {
+	case "DELETE":
 		fire_delete(r.URL, r.Body)
-	} else if method == "PATCH" {
+	case "PATCH":
 		fmt.Println("Not implemented yet")
-	} else {
+	default:
 		fmt.Println("UNKNOWN HTTP METHOD")
 	}
 }

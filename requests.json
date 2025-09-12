@@ -34,7 +34,7 @@
   {
     "name": "Name2",
     "url": "http://www.wumpiwolf.de",
-    "method": "^dafsdfa",
+    "method": "patch",
     "headers": {
       "Accept-Language": "en-US",
       "Authorization": "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==",
