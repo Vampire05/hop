@@ -17,6 +17,8 @@ const (
 	KeyArrowLeft  Key = "ArrowLeft"
 	KeyArrowRight Key = "ArrowRight"
 	KeyEscape     Key = "Escape"
+	KeyPageUp     Key = "PageUp"
+	KeyPageDown   Key = "PageDown"
 	KeyF1         Key = "F1"
 	KeyF2         Key = "F2"
 	KeyF3         Key = "F3"
@@ -70,6 +72,14 @@ func ReadKey() Key {
 			case 51: // Delete
 				if n >= 4 && buf[3] == 126 {
 					return KeyDelete
+				}
+			case 53: // Page Up
+				if n >= 4 && buf[3] == 126 {
+					return KeyPageUp
+				}
+			case 54: // Page Down
+				if n >= 4 && buf[3] == 126 {
+					return KeyPageDown
 				}
 			}
 		}

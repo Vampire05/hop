@@ -247,6 +247,12 @@ func writeContentHelp() {
 
 	locate(contentStartRow+8, startOnRight)
 	fmt.Print(yellow, "c = ", white, "Clone the selected request")
+
+	locate(contentStartRow+9, startOnRight)
+	fmt.Print(yellow, "Page up = ", white, "Move selected request up")
+
+	locate(contentStartRow+10, startOnRight)
+	fmt.Print(yellow, "Page down = ", white, "Move selected request up")
 }
 
 func editField(r *Request, field string) {

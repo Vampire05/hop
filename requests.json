@@ -1,19 +1,5 @@
 [
   {
-    "name": "GET TODO 1",
-    "url": "http://jsonplaceholder.typicode.com/todos/1",
-    "method": "GET",
-    "headers": {},
-    "body": ""
-  },
-  {
-    "name": "POST Test",
-    "url": "http://wumpiwolf.de:5000/",
-    "method": "POST",
-    "headers": {},
-    "body": "{\"name\": \"test\", \"age\": 42}"
-  },
-  {
     "name": "DELETE Test",
     "url": "http://wumpiwolf.de:5000/",
     "method": "DELETE",
@@ -28,9 +14,23 @@
     "body": "{\"name\": \"test\", \"age\": 42}"
   },
   {
+    "name": "GET TODO 1",
+    "url": "http://jsonplaceholder.typicode.com/todos/1",
+    "method": "GET",
+    "headers": {},
+    "body": ""
+  },
+  {
     "name": "PUT Test",
     "url": "http://wumpiwolf.de:5000/",
     "method": "PUT",
+    "headers": {},
+    "body": "{\"name\": \"test\", \"age\": 42}"
+  },
+  {
+    "name": "POST Test",
+    "url": "http://wumpiwolf.de:5000/",
+    "method": "POST",
     "headers": {},
     "body": "{\"name\": \"test\", \"age\": 42}"
   }

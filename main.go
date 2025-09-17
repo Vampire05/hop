@@ -83,6 +83,20 @@ func runMenu() {
 			drawMain(false, false)
 			writeContentHelp()
 			writeAnyKeyHint()
+		case keyboardmanager.KeyPageUp:
+			if !editMode {
+				newSelected := moveRequestUp(selected)
+				if newSelected >= 0 {
+					selected = newSelected
+				}
+			}
+		case keyboardmanager.KeyPageDown:
+			if !editMode {
+				newSelected := moveRequestDown(selected)
+				if newSelected >= 0 {
+					selected = newSelected
+				}
+			}
 		}
 	}
 }

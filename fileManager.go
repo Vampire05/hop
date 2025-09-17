@@ -67,3 +67,27 @@ func cloneRequest(index int) {
 
 	saveRequests()
 }
+
+func moveRequestUp(index int) int {
+	if index <= 0 || index >= len(requests) {
+		return -1
+	}
+
+	// swap
+	requests[index-1], requests[index] = requests[index], requests[index-1]
+
+	saveRequests()
+	return index - 1
+}
+
+func moveRequestDown(index int) int {
+	if index < 0 || index >= len(requests)-1 {
+		return -1
+	}
+
+	// swap
+	requests[index], requests[index+1] = requests[index+1], requests[index]
+
+	saveRequests()
+	return index + 1
+}
