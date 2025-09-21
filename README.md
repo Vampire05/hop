@@ -53,7 +53,7 @@ um vordefinierte HTTP-Requests zu verwalten und direkt auszuführen.
 
 ```bash
 # Repository klonen
-git clone [https://github.com/<dein-user>/<repo-name>.git](https://github.com/Vampire05/hop)
+git clone https://github.com/Vampire05/hop
 cd <repo-name>
 
 # Build
