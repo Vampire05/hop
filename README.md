@@ -18,7 +18,8 @@ um vordefinierte HTTP-Requests zu verwalten und direkt auszuführen.
 
 ## 🖥️ Screenshots
 
-*(Platzhalter, hier kannst du später Screenshots einfügen)*
+![Screenshot vom TUI](assets/screenshot.png)
+
 
 ---
 
