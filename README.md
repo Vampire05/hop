@@ -18,7 +18,7 @@ um vordefinierte HTTP-Requests zu verwalten und direkt auszuführen.
 
 ## 🖥️ Screenshots
 
-![Screenshot vom TUI](assets/screenshot.png)
+![Screenshot vom TUI](screenshot.png)
 
 
 ---
