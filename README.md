@@ -1,104 +1,62 @@
-# hop 🐺
+# HTTP Request Manager (TUI)
 
-**hop** is a simple interactive command-line HTTP client written in Go.  
-All requests are stored in a `requests.json` file and can be edited, cloned, deleted, and executed directly from the terminal.  
-
-![screenshot](./screenshot.png) <!-- Optional: add a screenshot here -->
+Ein kleines **Terminal-UI**-Tool (basierend auf [gocui](https://github.com/jroimartin/gocui)),  
+um vordefinierte HTTP-Requests zu verwalten und direkt auszuführen.
 
 ---
 
 ## ✨ Features
 
-- 📂 Persist requests in `requests.json`
-- ✏️ Edit requests directly in the terminal (Name, URL, Method, Body, Headers)
-- ➕ Clone requests
-- ❌ Delete requests
-- ⬆️⬇️ Navigate using arrow keys
-- 🖱️ Support for **custom headers** (Key=Value format)
-- 🔄 Supports **GET/POST/PUT/DELETE**
-- 🖥️ ANSI terminal UI with banner display
-- ⚡ Fire requests instantly
+- 📂 Requests werden in einer JSON-Datei gespeichert (`requests.json`)
+- 📝 CRUD-Operationen auf Requests:
+  - Hinzufügen, Bearbeiten, Löschen, Verschieben
+- 📡 HTTP-Methoden unterstützt: `GET`, `POST`, `PUT`, `DELETE`, `PATCH`
+- 📜 Response wird in einer **scrollbaren Ansicht** angezeigt
+- 🎨 Farbiges TUI mit Navigation per Tastatur
 
 ---
 
-## 🎹 Keyboard Controls
+## 🖥️ Screenshots
 
-| Key             | Action                                      |
-|-----------------|---------------------------------------------|
-| `↑` / `↓`       | Navigate through requests/fields            |
-| `Enter`         | Send request or edit field                  |
-| `e`             | Enter edit mode                             |
-| `c`             | Clone selected request                      |
-| `Del`           | Delete selected request                     |
-| `ESC`           | Exit edit mode / quit program               |
-| `F1`            | Show help                                   |
+*(Platzhalter, hier kannst du später Screenshots einfügen)*
 
 ---
 
-## 📦 Installation
+## ⌨️ Tastenkürzel
 
-### Requirements
-- Go >= 1.21
-- Git
+**Allgemein**
+- `F1` – Hilfe anzeigen
+- `Esc` – Popup schließen / Programm beenden
+- `Ctrl+C` – Programm beenden
 
-### Steps
+**Liste**
+- `↑ / ↓` – Auswahl bewegen
+- `Enter` – Request senden
+- `Delete` – Request löschen
+- `PgUp / PgDn` – Request verschieben
+- `e` – Request bearbeiten
+
+**Details**
+- `↑ / ↓` – Feld auswählen
+- `Enter` – Feld editieren
+- `Esc` – zurück zur Liste
+
+**Response-View**
+- `↑ / ↓` – scrollen
+- `PgUp / PgDn` – schneller scrollen
+- `Esc` – zurück zum Menü
+
+---
+
+## 🚀 Installation & Start
+
 ```bash
-# Clone repository
-git clone https://github.com/Vampire05/hop.git
-cd hop
-
-# Fetch dependencies
-go mod tidy
+# Repository klonen
+git clone https://github.com/<dein-user>/<repo-name>.git
+cd <repo-name>
 
 # Build
-go build -o hop
+go build -o http-tui
 
-# Run
-./hop
-```
-
----
-
-## 📝 Example `requests.json`
-
-```json
-[
-  {
-    "name": "GET Google",
-    "url": "http://www.google.de",
-    "method": "GET",
-    "headers": {
-      "Accept-Language": "en-US"
-    },
-    "body": ""
-  },
-  {
-    "name": "POST Example",
-    "url": "https://jsonplaceholder.typicode.com/posts",
-    "method": "POST",
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "body": "{\"title\":\"foo\",\"body\":\"bar\",\"userId\":1}"
-  }
-]
-```
-
----
-
-## ⚡ Roadmap / Ideas
-- [ ] Tab support (multiple workspaces)
-- [ ] Syntax highlighting for JSON bodies
-- [ ] Import/Export requests (Postman Collection, cURL)
-- [ ] Extended authentication (OAuth2, Bearer Tokens)
-
----
-
-## 🤝 Contributing
-Pull requests are welcome!  
-If you have a feature request or found a bug, feel free to open an [issue](https://github.com/yourname/hop/issues).
-
----
-
-## 📜 License
-MIT License © 2025 [Artem Schmieder]
+# Start
+./http-tui
