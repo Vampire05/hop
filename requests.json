@@ -3,24 +3,31 @@
     "name": "PATCH Test22",
     "url": "http://wumpiwolf.de:5000/",
     "method": "PATCH",
-    "body": "{\n  \"name\": \"Jane Doe\",\n  \"age\": 30,\n  \"isStudent\": false,\n  \"courses\": [\"Math\", \"Science\"],\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"Anytown\",\n    \"zipcode\": \"33335\"\n  }\n}"
+    "body": "{\n  \"name\": \"Jane Doe\",\n  \"age\": 30,\n  \"isStudent\": false,\n  \"courses\": [\"Math\", \"Science\"],\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"Anytown\",\n    \"zipcode\": \"33335\"\n  }\n}",
+    "headers": {
+      "Content-Type": "application/json",
+      "MyCustomHeader": "testvalue"
+    }
   },
   {
     "name": "GET TODO 1",
     "url": "http://jsonplaceholder.typicode.com/todos/1",
     "method": "GET",
-    "body": "{\n  \"name\": \"Jane Doe\",\n  \"age\": 30,\n  \"isStudent\": false,\n  \"courses\": [\"Math\", \"Science\"],\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"Anytown\",\n    \"zipcode\": \"12345\"\n  }\n}"
+    "body": "{\n  \"name\": \"Jane Doe\",\n  \"age\": 30,\n  \"isStudent\": false,\n  \"courses\": [\"Math\", \"Science\"],\n  \"address\": {\n    \"street\": \"123 Main St\",\n    \"city\": \"Anytown\",\n    \"zipcode\": \"12345\"\n  }\n}",
+    "headers": {}
   },
   {
     "name": "PUT Test",
     "url": "http://wumpiwolf.de:5000/",
     "method": "PUT",
-    "body": "{\n  \"name\": \"Jane Doe\",\n  \"age\": 30,\n  \"isStudent\": false,\n  \"is_ready\": \"yep\"\n}"
+    "body": "{\n  \"name\": \"Jane Doe\",\n  \"age\": 30,\n  \"isStudent\": false,\n  \"is_ready\": \"yep\"\n}",
+    "headers": {}
   },
   {
     "name": "POST Test",
     "url": "http://wumpiwolf.de:5000/",
     "method": "POST",
-    "body": "{\"name\": \"test\", \"age\": 42}"
+    "body": "{\"name\": \"test\", \"age\": 42}",
+    "headers": {}
   }
 ]

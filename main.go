@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -21,10 +22,11 @@ var reset = "\033[0m"
 var white = "\033[37m"
 
 type Request struct {
-	Name   string `json:"name"`
-	URL    string `json:"url"`
-	Method string `json:"method"`
-	Body   string `json:"body"`
+	Name    string            `json:"name"`
+	URL     string            `json:"url"`
+	Method  string            `json:"method"`
+	Body    string            `json:"body"`
+	Headers map[string]string `json:"headers"`
 }
 
 var (
@@ -42,6 +44,13 @@ func loadRequests() {
 		return
 	}
 	json.Unmarshal(data, &requests)
+
+	// Damit alte JSONs ohne "headers" nicht crashen:
+	for i := range requests {
+		if requests[i].Headers == nil {
+			requests[i].Headers = map[string]string{}
+		}
+	}
 }
 
 func saveRequests() {
@@ -123,13 +132,16 @@ func printList(v *gocui.View) {
 
 func printDetails(g *gocui.Gui, v *gocui.View) {
 	v.Clear()
-	//fmt.Fprint(v, "\n\n")
+
 	if len(requests) == 0 || selected < 0 || selected >= len(requests) {
 		fmt.Fprintln(v, "Keine Requests")
 		return
 	}
-	r := requests[selected]
 
+	r := requests[selected]
+	cv := g.CurrentView()
+
+	// --- 1–3: Grunddaten ---
 	fields := []struct {
 		label string
 		value string
@@ -137,17 +149,39 @@ func printDetails(g *gocui.Gui, v *gocui.View) {
 		{"Name", r.Name},
 		{"Method", r.Method},
 		{"URL", r.URL},
-		{"Body", r.Body},
 	}
 
 	for i, f := range fields {
-		cv := g.CurrentView()
 		if i == detailSelected && cv != nil && cv.Name() == "details" && !inEditPopup {
-			fmt.Fprintf(v, "\033[30;43m%s: %s\033[0m\n\n", f.label, f.value) // Schwarz auf Gelb
+			fmt.Fprintf(v, "\033[30;43m%s: %s\033[0m\n\n", f.label, f.value)
 		} else {
 			fmt.Fprintf(v, "%s: %s\n\n", yellow+f.label, white+f.value)
 		}
+	}
 
+	// --- 4: Headers ---
+	if detailSelected == 3 && cv != nil && cv.Name() == "details" && !inEditPopup {
+		fmt.Fprintf(v, "\033[30;43mHeaders:\033[0m\n")
+	} else {
+		fmt.Fprintf(v, "%sHeaders:%s\n", yellow, reset)
+	}
+
+	if len(r.Headers) == 0 {
+		fmt.Fprintf(v, "  (keine)\n\n")
+	} else {
+		for k, val := range r.Headers {
+			fmt.Fprintf(v, "  %s: %s\n", k, val)
+		}
+		fmt.Fprint(v, "\n")
+	}
+
+	// --- 5: Body ---
+	if detailSelected == 4 && cv != nil && cv.Name() == "details" && !inEditPopup {
+		fmt.Fprintf(v, "\033[30;43mBody:\033[0m\n")
+		fmt.Fprintf(v, "\033[30;43m%s\033[0m\n", r.Body)
+	} else {
+		fmt.Fprintf(v, "%sBody:%s\n", yellow, reset)
+		fmt.Fprintf(v, "%s%s%s\n", white, r.Body, reset)
 	}
 }
 
@@ -249,7 +283,9 @@ func cursorDownDetails(g *gocui.Gui, v *gocui.View) error {
 	if inEditPopup {
 		return nil
 	}
-	if detailSelected < 3 {
+
+	// Es gibt jetzt 5 Felder: 0=Name, 1=Method, 2=URL, 3=Headers, 4=Body
+	if detailSelected < 4 {
 		detailSelected++
 		printDetails(g, v)
 	}
@@ -267,9 +303,187 @@ func cursorUpDetails(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func closeHeaderEditor(g *gocui.Gui, v *gocui.View) error {
+	g.DeleteView("headerEditor")
+	inEditPopup = false
+
+	// optional: sicherstellen, dass aktuelle Änderungen persistiert sind
+	saveRequests()
+
+	g.SetCurrentView("details")
+	printDetails(g, mustGetView(g, "details"))
+	return nil
+}
+
+func openDeleteHeaderPopup(g *gocui.Gui) error {
+	r := &requests[selected]
+	if len(r.Headers) == 0 {
+		return nil
+	}
+
+	maxX, maxY := g.Size()
+	width := 40
+	height := 10
+	x0 := (maxX - width) / 2
+	y0 := (maxY - height) / 2
+	x1 := x0 + width
+	y1 := y0 + height
+
+	if v, err := g.SetView("deleteHeaderPopup", x0, y0, x1, y1); err != nil {
+		if !errors.Is(err, gocui.ErrUnknownView) {
+			return err
+		}
+
+		v.Title = " Header löschen – Name eingeben "
+		v.Editable = true
+		v.Wrap = false
+		v.Clear()
+		fmt.Fprintln(v, "Header-Name:")
+		g.SetCurrentView("deleteHeaderPopup")
+	}
+
+	g.SetKeybinding("deleteHeaderPopup", gocui.KeyEnter, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		lines := strings.Split(strings.TrimSpace(v.Buffer()), "\n")
+		if len(lines) > 0 {
+			key := strings.TrimSpace(lines[len(lines)-1])
+			delete(r.Headers, key)
+
+			// <-- SPEICHERN
+			saveRequests()
+		}
+		g.DeleteView("deleteHeaderPopup")
+		g.SetCurrentView("headerEditor")
+		printDetails(g, mustGetView(g, "details"))
+		return openHeaderEditor(g, mustGetView(g, "details"))
+	})
+
+	g.SetKeybinding("deleteHeaderPopup", gocui.KeyEsc, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		g.DeleteView("deleteHeaderPopup")
+		g.SetCurrentView("headerEditor")
+		return nil
+	})
+
+	return nil
+}
+
+func openAddHeaderPopup(g *gocui.Gui) error {
+	maxX, maxY := g.Size()
+	width := 50
+	height := 5
+	x0 := (maxX - width) / 2
+	y0 := (maxY - height) / 2
+	x1 := x0 + width
+	y1 := y0 + height
+
+	if v, err := g.SetView("addHeaderPopup", x0, y0, x1, y1); err != nil {
+		if !errors.Is(err, gocui.ErrUnknownView) {
+			return err
+		}
+		v.Title = " Neuer Header (Format: Key: Value) "
+		v.Editable = true
+		v.Wrap = false
+		v.Autoscroll = false
+		v.Clear()
+
+		g.SetCurrentView("addHeaderPopup")
+	}
+
+	g.SetKeybinding("addHeaderPopup", gocui.KeyEnter, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		line := strings.TrimSpace(v.Buffer())
+		parts := strings.SplitN(line, ":", 2)
+		if len(parts) == 2 {
+			key := strings.TrimSpace(parts[0])
+			val := strings.TrimSpace(parts[1])
+			r := &requests[selected]
+			if r.Headers == nil {
+				r.Headers = make(map[string]string)
+			}
+			r.Headers[key] = val
+
+			// <-- SPEICHERN
+			saveRequests()
+		}
+		g.DeleteView("addHeaderPopup")
+		g.SetCurrentView("headerEditor")
+		printDetails(g, mustGetView(g, "details"))
+		return openHeaderEditor(g, mustGetView(g, "details"))
+	})
+
+	g.SetKeybinding("addHeaderPopup", gocui.KeyEsc, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		g.DeleteView("addHeaderPopup")
+		g.SetCurrentView("headerEditor")
+		return nil
+	})
+
+	return nil
+}
+
+func openHeaderEditor(g *gocui.Gui, v *gocui.View) error {
+	if len(requests) == 0 || selected < 0 || selected >= len(requests) {
+		return nil
+	}
+
+	r := &requests[selected]
+	inEditPopup = true
+
+	maxX, maxY := g.Size()
+	width := 60
+	height := 15
+	x0 := (maxX - width) / 2
+	y0 := (maxY - height) / 2
+	x1 := x0 + width
+	y1 := y0 + height
+
+	// Popup erstellen
+	if v, err := g.SetView("headerEditor", x0, y0, x1, y1); err != nil {
+		if !errors.Is(err, gocui.ErrUnknownView) {
+			return err
+		}
+
+		v.Title = " Edit Headers "
+		v.Editable = false
+		v.Wrap = true
+		v.Frame = true
+		v.Clear()
+
+		// Header anzeigen
+		fmt.Fprintln(v, "Vorhandene Header:")
+		if len(r.Headers) == 0 {
+			fmt.Fprintln(v, "  (keine)")
+		} else {
+			for k, val := range r.Headers {
+				fmt.Fprintf(v, "  %s: %s\n", k, val)
+			}
+		}
+		fmt.Fprintln(v, "\nBefehle:")
+		fmt.Fprintln(v, "  a = neuen Header hinzufügen")
+		fmt.Fprintln(v, "  d = Header löschen")
+		fmt.Fprintln(v, "  Ctrl+S = speichern / schließen")
+		fmt.Fprintln(v, "  Esc = abbrechen")
+
+		g.SetCurrentView("headerEditor")
+	}
+
+	// Keybindings fürs Popup
+	g.SetKeybinding("headerEditor", 'a', gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		return openAddHeaderPopup(g)
+	})
+	g.SetKeybinding("headerEditor", 'd', gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		return openDeleteHeaderPopup(g)
+	})
+	g.SetKeybinding("headerEditor", gocui.KeyCtrlS, gocui.ModNone, closeHeaderEditor)
+	g.SetKeybinding("headerEditor", gocui.KeyEsc, gocui.ModNone, closeHeaderEditor)
+
+	return nil
+}
+
 func openFieldEdit(g *gocui.Gui, v *gocui.View) error {
 	if inEditPopup || len(requests) == 0 {
 		return nil
+	}
+
+	if detailSelected == 3 {
+		return openHeaderEditor(g, v)
 	}
 
 	maxX, maxY := g.Size()
@@ -501,12 +715,20 @@ func closeResponseView(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
+func mustGetView(g *gocui.Gui, name string) *gocui.View {
+	v, err := g.View(name)
+	if err != nil {
+		panic(fmt.Sprintf("view %q not found: %v", name, err))
+	}
+	return v
+}
+
 // ---------- Main ----------
 
 func main() {
 	loadRequests()
-	if err := run(); err != nil {
-		log.Panicln(err)
+	if err := run(); err != nil && err != gocui.ErrQuit {
+		log.Fatal(err)
 	}
 }
 
@@ -568,6 +790,10 @@ func fire_request(g *gocui.Gui, method string, url string, data string) {
 	req, err := http.NewRequest(method, url, bytes.NewBufferString(data))
 	if err != nil {
 		return
+	}
+
+	for k, v := range requests[selected].Headers {
+		req.Header.Set(k, v)
 	}
 
 	resp, err := client.Do(req)
