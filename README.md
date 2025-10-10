@@ -18,7 +18,8 @@ um vordefinierte HTTP-Requests zu verwalten und direkt auszuführen.
 
 ## 🖥️ Screenshots
 
-*(Platzhalter, hier kannst du später Screenshots einfügen)*
+![Screenshot vom TUI](screenshot.png)
+
 
 ---
 
@@ -52,11 +53,11 @@ um vordefinierte HTTP-Requests zu verwalten und direkt auszuführen.
 
 ```bash
 # Repository klonen
-git clone https://github.com/<dein-user>/<repo-name>.git
+git clone https://github.com/Vampire05/hop
 cd <repo-name>
 
 # Build
-go build -o http-tui
+go build -o hop
 
 # Start
 ./http-tui
